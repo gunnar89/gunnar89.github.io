@@ -1,0 +1,123 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="">
+  <meta property="og:type" content="">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+  <!-- Place favicon.ico in the root directory -->
+
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/bulma.css">
+
+  <meta name="theme-color" content="#fafafa">
+</head>
+
+<body>
+<div id="app">
+
+
+  <div v-if="playerName = '' ">Name
+    <input v-model="playerName" type="text">
+    <button @click="saveName">Save</button>
+  </div>
+
+    <div v-else >
+    <a href="">Add Name</a>
+  </div>
+  <hr>
+<br>
+
+<div>
+  <button @click="setActivity('sit')" >Sit</button><br>
+  <button @click="setActivity('explore')" >Explore</button><br>
+  <button @click="setActivity('train')" >Train</button><br>
+  <button @click="setActivity('hunt')" >Hunt</button><br>
+  <button @click="setActivity('sleep')" >Sleep</button><br>
+
+  </div>
+<br>
+  <table class="table is-narrow is-bordered">
+
+
+
+    <tr>
+      <td>Location: </td>
+      <td>{{plCurrLocation}}</td>
+    </tr>
+
+    <tr>
+      <td>Level</td>
+      <td>1</td>
+    </tr>
+
+     <tr>
+      <td>Train</td>
+      <td>{{ trainPoints }}</td>
+    </tr>
+
+
+
+    <tr>
+      <td>Current status:</td>
+      <td>{{ currentStatus }}</td>
+    </tr>
+
+   <tr>
+     <td>Energy</td>
+     <td>{{ currentEnergy }}</td>
+   </tr>
+  </table>
+
+  <!-- backpack -->
+
+  <div><p>Food Items: {{ food }}</p>
+    <!-- todo hardcoded max energy -->
+    <button :disabled="currentEnergy>100" @click="eatFood">Eat</button>
+  </div>
+
+
+<br>
+
+  <table class="table is-narrow is-bordered">
+    <tr>
+      <td><button @click="addEnergy">Add E</button></td>
+      <td><button @click="resetEnergy">Reset E</button></td>
+
+    </tr>
+  </table>
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+  <!-- Add your site or application content here -->
+
+  <script src="js/vendor/modernizr-3.11.2.min.js"></script>
+  <script src="js/plugins.js"></script>
+
+  <script src="js/vue.js"></script>
+  <script src="js/main.js"></script>
+</body>
+
+</html>
