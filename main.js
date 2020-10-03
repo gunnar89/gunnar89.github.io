@@ -4,9 +4,10 @@ currentEnergy
 currentStatus
 food
 trainPoints
+zombiesKilled
 
 vvar
-
+//todo if zombie is not killed, save HP
  */
 
 var globalThis = this
@@ -34,7 +35,6 @@ var plStatus = {
     energyMod: 2.5
   },
 
-
 }
 
 settings = {
@@ -46,7 +46,7 @@ settings = {
   decreasingEnergyNormal:0.5,
   sleepEnergyIncrease:2,
   foodDecrease:1,
-  energyIncreaePerFood: 50, //todo slightly randomized
+  energyIncreaePerFood: 5, //todo slightly randomized
 
 }
 
@@ -69,17 +69,51 @@ var app = new Vue({
   el: '#app',
 
   data: {
+    attackNow:0,
+    randomZombieHP:100,
+    attackMsg:'',
+
+    gameIntervals: [],
+
     playerName:g('playerName'),
     plCurrLocation:'home',
+    maxFood:100,
     currentEnergy:g('currentEnergy'),
-    food: parseInt(g('food')),
+    food: parseInt(g('food')) ? parseInt(g('food')) : 10,
     currentStatus:'sit',
     currentInterval: '',
-    trainPoints: parseInt(g('trainPoints')),
-    expPoints: 0,
+    trainPoints: g('trainPoints') ? parseInt(g('trainPoints')) : 0,
+    expPoints: g('expPoints') ? parseInt(g('expPoints')) : 0,
+    zombiesKilled: g('zombiesKilled') ? parseInt(g('zombiesKilled')) : 0,
   },
 
   methods: {
+
+    zombieFight() {
+
+      this.currentStatus ='hunt'
+      if(this.randomZombieHP > 0) {
+        this.randomZombieHP -= createRand(10)
+      } else {
+          this.attackMsg = 'Zombie is now killed!'
+        this.zombiesKilled += 1
+          for(var inter of this.gameIntervals ) {
+            clearInterval(inter)
+          }
+      this.currentStatus = 'sit'
+      }
+
+    },
+
+    attackAZombieActivity() {
+      for(var inter of this.gameIntervals ) {
+            clearInterval(inter)
+          }
+      this.startHuntingActivity()
+      this.randomZombieHP = 100
+      this.zombieFightInterval = setInterval(this.zombieFight, 500)
+      this.gameIntervals.push(this.zombieFightInterval)
+    },
 
     saveName() {
       a('playerName', this.playerName )
@@ -94,38 +128,40 @@ var app = new Vue({
       this.currentEnergy += globalThis.settings.increaseEnergyBy
     },
 
+    sitting() {
+      if(this.currentEnergy>0) {
+        this.currentEnergy -= globalThis.settings.decreasingEnergyNormal;
+      } else {
+        clearInterval(this.currentInterval)
+      }
+    },
+
     decreaseEnergy() {
       switch (this.currentStatus) {
         case 'sit':
-          this.currentEnergy -= globalThis.settings.decreasingEnergyNormal;
+          this.sitting()
           break;
-      case 'explore':
+        case 'explore':
           this.currentEnergy -= (globalThis.settings.decreasingEnergyNormal)*globalThis.plStatus.exploring.energyMod;
           break;
-        case "hunt":
-          this.currentEnergy -= (globalThis.settings.decreasingEnergyNormal) * globalThis.plStatus.hunting.energyMod
-          break;
-
         case 'train':
           this.currentEnergy -= (globalThis.settings.decreasingEnergyNormal) * globalThis.plStatus.training.energyMod
           break;
-
         case 'walk':
           this.currentEnergy -= (globalThis.settings.decreasingEnergyNormal) * globalThis.plStatus.walking.energyMod
           break;
-
-        case 'sleep':
-          this.currentEnergy += (globalThis.settings.sleepEnergyIncrease)
+        case 'hunt':
+          this.currentEnergy -= (globalThis.settings.decreasingEnergyNormal) * globalThis.plStatus.hunting.energyMod
           break;
-
-
-      }
-
-    },
+        case 'sleep':
+          this.sleeping()
+          break;
+      } //swi
+    }, //decrtease
 
     addTrainPoints() {
-      if(this.currentEnergy>80) {
-        this.trainPoints += 1
+      if(this.currentEnergy>10) {
+        this.trainPoints += 0.5
       } else {
         clearInterval(this.currentInterval)
         ll('No Energy')
@@ -135,15 +171,16 @@ var app = new Vue({
     },
 
     startTrainingActivity() {
-      this.trainInterval = setInterval(this.addTrainPoints, 1000)
+      this.trainInterval = setInterval(this.addTrainPoints, 3000)
       this.currentInterval = this.trainInterval
     },
 
     exploreEnvironment() {
+      ll('exploring environment')
 
       if(this.currentEnergy> 10) {
         var r = createRand(100)
-        if(r>50) {
+        if(r>80) {
           this.food += 1
         }
       } else {
@@ -156,35 +193,36 @@ var app = new Vue({
 
     },
 
-    checkEnergy() {
-      var howMuchLeft = 0
-      if(this.currentEnergy < globalThis.settings.maxEnergy) {
-        howMuchLeft = globalThis.settings.maxEnergy - this.currentEnergy
-
-
-      }
+    startExploreActivity() {
+            for(var inter of this.gameIntervals ) {
+            clearInterval(inter)
+          }
+      this.exploreInterval = setInterval(this.exploreEnvironment, 1000)
+      this.gameIntervals.push(this.exploreInterval)
     },
 
-    startExploreActivity() {
-      this.exploreInterval = setInterval(this.exploreEnvironment, 1000)
-      this.currentInterval = this.exploreInterval
+    addKilledZombies() {
+      this.zombiesKilled += 1
     },
 
     huntZombies() {
-      ll('1 zombie hunted')
+      this.expPoints += 1
+
     },
 
     startHuntingActivity() {
+      ll('Started Passive Hunting activitry')
       this.huntInterval = setInterval(this.huntZombies, 1000)
-      this.currentInterval = this.huntInterval
+      this.addKilledZombiesInterval = setInterval(this.addKilledZombies, 10000)
+      this.gameIntervals.push(this.huntInterval)
+      this.gameIntervals.push(this.addKilledZombiesInterval)
     },
 
     sleeping() {
      if(this.currentEnergy<101){
        this.currentEnergy += globalThis.settings.sleepEnergyIncrease
-       ll('sleeping..')
+
      } else {
-       ll('i slept enough')
        this.currentStatus = 'sit'
        clearInterval(this.currentInterval)
      }
@@ -198,9 +236,11 @@ var app = new Vue({
     },
 
     eatFood() {
-      if(this.currentEnergy < globalThis.settings.maxEnergy) {
+      var f = parseInt(this.currentEnergy)
+      if(f < globalThis.settings.maxEnergy) {
         this.food -= globalThis.settings.foodDecrease
-        this.currentEnergy += globalThis.settings.energyIncreaePerFood
+        f += parseInt(globalThis.settings.energyIncreaePerFood)
+        this.currentEnergy = f
       }
     },
 
@@ -208,11 +248,12 @@ var app = new Vue({
       switch (activity) {
         case 'sit':
           this.currentStatus = 'sit';
-          clearInterval(this.currentInterval)
+          for(var inter of this.gameIntervals ) {
+            clearInterval(inter)
+          }
           break;
         case 'explore':
           this.currentStatus = 'explore';
-          clearInterval(this.currentInterval)
           this.startExploreActivity()
           break;
         case 'train':
@@ -222,12 +263,11 @@ var app = new Vue({
           break;
         case 'hunt':
           this.currentStatus = 'hunt';
-          clearInterval(this.currentInterval)
-          this.startHuntingActivity();
+            this.startHuntingActivity();
           break;
         case 'sleep':
           clearInterval(this.currentInterval)
-          this.startSleepActivity();
+          this.currentStatus = 'sleep';
           break;
 
       }
@@ -238,14 +278,24 @@ var app = new Vue({
       this.currentEnergy = 100
     },
 
+    a_addFood() {
+      this.food += 50
+    },
+
     savePlayerData() {
 
       a('currentEnergy', this.currentEnergy)
       a('currentStatus', this.currentStatus)
       a('food', this.food)
       a('trainPoints', this.trainPoints)
+      a('expPoints', this.expPoints)
+      a('zombiesKilled', this.zombiesKilled)
 
 
+    },
+
+    moveDot() {
+      ll(this.$refs['dot'].parentNode)
     }
 
   }, //methods
@@ -255,7 +305,7 @@ var app = new Vue({
   },//computed
 
   mounted() {
-    setInterval(this.decreaseEnergy, 1000)
+    setInterval(this.decreaseEnergy, 5000)
     setInterval(this.savePlayerData, 3000)
   }//mounted
 
