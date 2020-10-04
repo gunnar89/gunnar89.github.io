@@ -119,6 +119,67 @@ var app = new Vue({
   methods: {
 
 
+    cancelKilling() {
+       clearInterval(this.mouseDownIntervals[0])
+    },
+
+    buttonKlicked() {
+      for(var inter of this.mouseDownIntervals) {
+        clearInterval(inter)
+      }
+      this.mouseDownIntervals = []
+      var killingInterval = setInterval(this.killBoss,100)
+      this.mouseDownIntervals.push(killingInterval)
+    },
+
+  searchAgain() {
+    this.bossHp = NaN
+      this.bossImageUrl = 'https://i.imgur.com/JcImZPt.gif'
+    this.$refs["searchBoss"].removeAttribute('value')
+    this.createBoss()
+
+    },
+
+  killBoss() {
+      ll('Im now fightirng  a boss')
+    this.bossHp -= createRand(200)
+    var that = this
+    if(this.bossHp<0) {
+      clearInterval(this.mouseDownIntervals[0])
+      this.bossIsNowDead = true
+      this.plBossesKilledCount += 1
+      this.plExp += 100
+      this.plFood += 500
+      setTimeout(function () {
+        that.searchAgain()
+      },200)
+    }
+
+  },
+
+  createBoss() {
+      var that = this
+      this.bossStatusMsg = 'Searching for boss monster...'
+
+      setTimeout(function () {
+         var randBoss = globalThat.bosses[createRand(3)]
+        that.bossStatusMsg = 'Boss found: ' + randBoss.name
+        that.bossHp = randBoss.bossHp
+        that.bossImageUrl = randBoss.url
+         that.$refs["searchBoss"].setAttribute('value', that.bossHp)
+         that.$refs["searchBoss"].setAttribute('max', that.bossHp)
+        that.bossIsNowDead = false
+      }, randNumBetw(500,5000))
+
+      ll('Im here')
+  },
+
+  bossFighting() {
+    this.bossMenuActive = (!this.bossMenuActive);
+    this.createBoss()
+    },
+
+
 
     eatFood() {
       this.plFood -= 1
@@ -288,51 +349,7 @@ var app = new Vue({
 
   },
 
-    searchAgain() {
-    this.bossHp = NaN
-      this.bossImageUrl = 'https://i.imgur.com/JcImZPt.gif'
-    this.$refs["searchBoss"].removeAttribute('value')
-    this.createBoss()
 
-    },
-
-  killBoss() {
-    this.bossHp -= createRand(200)
-    var that = this
-    if(this.bossHp<0) {
-      this.bossIsNowDead = true
-      this.plBossesKilledCount += 1
-      this.plExp += 100
-      this.plFood += 500
-      setTimeout(function () {
-        that.searchAgain()
-      },200)
-
-    }
-
-  },
-
-  createBoss() {
-      var that = this
-      this.bossStatusMsg = 'Searching for boss monster...'
-
-      setTimeout(function () {
-         var randBoss = globalThat.bosses[createRand(3)]
-        that.bossStatusMsg = 'Boss found: ' + randBoss.name
-        that.bossHp = randBoss.bossHp
-        that.bossImageUrl = randBoss.url
-         that.$refs["searchBoss"].setAttribute('value', that.bossHp)
-         that.$refs["searchBoss"].setAttribute('max', that.bossHp)
-        that.bossIsNowDead = false
-      }, randNumBetw(500,5000))
-
-      ll('Im here')
-  },
-
-  bossFighting() {
-    this.bossMenuActive = (!this.bossMenuActive);
-    this.createBoss()
-    },
 
 
 
