@@ -43,8 +43,6 @@
 </head>
 
 <body>
-
-<body>
 <div id="app">
 
   <div class="container">
@@ -78,7 +76,7 @@
           <button @click="setActivity('explore')" class="button is-small actionButton" >Explore</button><br>
           <button @click="setActivity('train')" class="button is-small actionButton" >Train</button><br>
           <button @click="setActivity('hunt')" class="button is-small actionButton" >Hunt</button><br>
-          <button @click="setActivity('fight')" class="button is-small actionButton" >Fight</button><br>
+          <button @click="bossFighting" class="button is-small actionButton" >Fight</button><br>
 </div>
 
 
@@ -92,6 +90,12 @@
               <td>Activity:</td>
               <td>{{ plCurrActivity }}</td>
             </tr>
+
+                   <tr>
+              <td>Bosses killed</td>
+              <td>{{ plBossesKilledCount }}</td>
+            </tr>
+
 
               <tr>
               <td>Zombies killed</td>
@@ -127,22 +131,43 @@
 
  </div>
 
- <div v-if="plCurrActivity==='fight'" class="column is-6" style="border: 1px dashed gray">
-    <div class="level" style="border: 1px dashed gray; min-height: 2em">
-            <p>{{ bossKilledMsg }}</p>
-        </div>
-    <div class="level">
+      <div v-if="bossMenuActive" class="column is-6 bbb">
+          <div class="level bbb" style="min-height: 2em">
+              {{ bossStatusMsg }}
+          </div>
 
-        <div class="column is-6">
-         <label style="text-align: center"> Boss HP
-          <progress class="progress is-danger is-small" :value="bossEnergy" max="100">{{ bossEnergy}}</progress>
-        </label>
-        </div>
-        <div class="column is-3">
-        <button @click="figthABoss" style="height: 100px; width: 100px" :disabled="!bossIsAlive">Kill</button>
-         </div>
-        
-    </div> <!-- lvel -->
+
+          <div class="tile bbb is-parent">
+              
+              
+              
+              <!-- progress -->
+
+              <div class="tile is-child bbb" style="max-width: 150px">
+                  <div class="tile is-child" style="max-width: 150px">
+                  <img :src="bossImageUrl" style="max-width: 150px">
+              </div>
+                  <label style="text-align: center"> Boss HP <span v-if="!isNaN(bossHp)"> {{ bossHp }}</span>
+                      <progress style="max-width: 150px" ref="searchBoss" class="progress is-danger is-small" :value="bossHp"
+                                max="100"></progress>
+                  </label>
+              </div>
+
+
+
+
+              <!-- kill button -->
+              <div class="tile is-child bbb is-vertical ">
+                  <div class="tile">
+                      <button style="height: 100px; width: 100px">Kill</button>
+                  </div>
+                  <div class="tile">
+                      <button @click="searchAgain" style="height: 40px; width: 100px">Again</button>
+                  </div>
+              </div>
+
+
+          </div> <!-- parent tile -->
 
 
 
