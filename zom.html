@@ -42,7 +42,11 @@
 
 </head>
 
-<body>
+<body> <!-- FROM HERE -->
+
+
+
+
 <div id="app">
 
   <div class="container">
@@ -182,7 +186,7 @@
               <!-- kill button -->
               <div class="tile is-child bbb is-vertical ">
                   <div class="tile">
-                      <button :disabled="bossIsNowDead" @click="killBoss" style="height: 100px; width: 100px">Kill</button>
+                      <button :disabled="bossIsNowDead" @mousedown="buttonKlicked" @mouseup="cancelKilling" style="height: 100px; width: 100px">Kill</button>
                   </div>
                   <div class="tile">
                       <button  @click="searchAgain" style="height: 40px; width: 100px">Again</button>
@@ -236,9 +240,11 @@
     <button @click="a_resetExp">Reset exp</button>
     <button @click="a_resetTrain">Reset train</button>
     <button @click="a_resetZombies">Reset zombies</button>
+    
+    
+    
 
-
-</div>
+</div> <!-- TO HERE -->
 
 
 
