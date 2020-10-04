@@ -524,8 +524,8 @@ var app = new Vue({
 
 
   mounted() {
-    //setInterval(this.saveData, 2000)
-    //this.runActivitiesSinceLastTime()
+    setInterval(this.saveData, 2000)
+    this.runActivitiesSinceLastTime()
     this.startActivity()
 
 
