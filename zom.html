@@ -1,15 +1,6 @@
 <!doctype html>
 <html class="no-js" lang="">
 
-
-<!--
-
- https://media1.tenor.com/images/a2670281a2bd0f1f6a22f8472c6813d0/tenor.gif?itemid=15624597
-
- -->
-
-
-
 <head>
   <meta charset="utf-8">
   <title></title>
@@ -52,32 +43,26 @@
 </head>
 
 <body>
+
+<body>
 <div id="app">
-  <div v-if="playerName = '' ">Name
-    <input v-model="playerName" type="text">
-    <button @click="saveName">Save</button>
-  </div>
-  <div v-else >
-    <a href="">Add Name</a>
-  </div>
-  <hr>
-  <br>
 
   <div class="container">
+      <div v-if="showTimeAway">
+        <p>You were away: {{ plTimeAway }}</p>
+      </div>
 
 <div class="columns">
    <!-- progress -->
         <div class="column is-6">
 
-          <label> Energy
-          <progress class="progress is-primary is-small" :value="currentEnergy" max="100"> {{ currentEnergy }}
-          </progress>
+          <label> HP
+          <progress class="progress is-primary is-small" :value="plHp" max="100"></progress>
+        </label>
+            <label> Energy
+          <progress class="progress is-primary is-small" :value="plEn" max="100">{{ plEn }}</progress>
         </label>
 
-        <label> Food
-          <progress class="progress is-primary is-small" :value="food" :max="maxFood"> </progress>
-
-        </label>
 
         </div>
 
@@ -85,127 +70,98 @@
 </div>
 
 
-
-
-    <div class="columns">
+<!-- Button -->
+<div class="columns">
       <div class="column is-1" style="border: 1px dashed grey">
         <button @click="setActivity('sit')"  class="button is-small actionButton ">Sit</button><br>
-    <button @click="setActivity('explore')" class="button is-small actionButton" >Explore</button><br>
-    <button @click="setActivity('train')" class="button is-small actionButton" >Train</button><br>
-    <button @click="setActivity('hunt')" class="button is-small actionButton" >Hunt</button><br>
-    <button @click="setActivity('sleep')" class="button is-small actionButton" >Sleep</button><br>
-
-      </div>
-
-
-
-
-
-
+          <button @click="setActivity('sleep')" class="button is-small actionButton" >Sleep</button><br>
+          <button @click="setActivity('explore')" class="button is-small actionButton" >Explore</button><br>
+          <button @click="setActivity('train')" class="button is-small actionButton" >Train</button><br>
+          <button @click="setActivity('hunt')" class="button is-small actionButton" >Hunt</button><br>
+          <button @click="setActivity('fight')" class="button is-small actionButton" >Fight</button><br>
+</div>
 
 
         <!-- table -->
-        <div class="column is-3" style="border: 1px dashed grey">
+        <div class="column is-5" style="border: 1px dashed grey">
 
        
           <table class="table is-narrow is-bordered">
 
             <tr>
-              <td>Location:</td>
-              <td>{{plCurrLocation}}</td>
+              <td>Activity:</td>
+              <td>{{ plCurrActivity }}</td>
             </tr>
 
               <tr>
-              <td>z killed</td>
-              <td>{{ zombiesKilled }}</td>
+              <td>Zombies killed</td>
+              <td>{{ plZombiesKilled }}</td>
             </tr>
+
             <tr>
-              <td>Level</td>
-              <td>{{ expPoints }}</td>
+              <td>Exp</td>
+              <td>{{ plExp }}</td>
             </tr>
 
             <tr>
               <td>Train</td>
-              <td>{{ trainPoints }}</td>
+              <td>{{ plTrain }}</td>
             </tr>
 
 
             <tr>
               <td>Energy</td>
-              <td>{{ currentEnergy }}</td>
+              <td>{{ plEn }}</td>
             </tr>
 
             <tr>
               <td>Food</td>
-              <td>{{ food }}</td>
-              <td>
-                <button :disabled="currentEnergy>100" @click="eatFood">Eat</button>
-              </td>
+                <td>{{ plFood }}</td>
+                <td><button :disabled="((this.plFood < 1) || (this.plEn > 100))" @click="eatFood">Eat</button></td>
             </tr>
 
 
           </table>
         </div>
 
-      
-      
-      <div style="border: 1px dashed gray">
-       <div v-if="currentStatus === 'sit'" style="max-width: 200px; max-height: 300px" >
-        <img src="https://i.imgur.com/GCM9521.png">
-      </div>
 
-      <div v-if="currentStatus === 'train'" style="max-width: 200px; max-height: 300px">
-        <img src="https://media1.tenor.com/images/a2670281a2bd0f1f6a22f8472c6813d0/tenor.gif">
-      </div>
-
-      <div v-if="currentStatus === 'explore'" style="max-width: 200px; max-height: 100%">
-        <img src="https://i.imgur.com/OSB9Fr5.png">
-      </div>
-
-
-      <div v-if="currentStatus === 'sleep'" style="max-width: 200px; max-height: 300px">
-        <img src="https://i.imgur.com/sqfAjDX.png">
-      </div>
-
-      <div v-if="currentStatus === 'hunt'" style="max-width: 200px; max-height: 300px">
-        <img src="https://2.bp.blogspot.com/-vzSUJ5mZ-3w/UHyka0Fp_lI/AAAAAAAAWHk/b6udh7xyGV4/s640/tumblr_mbxaxlk2Sa1qi2c9do1_500.gif">
-      </div>
-
-</div>
  </div>
 
-      
-      
-      
-      <div class="columns">
-          <div class="column is-6">
-               <div>
-                <p>{{ attackMsg }}</p>
-            </div>
-          </div>
-      </div>
-      
-      
-      <!-- zombie fight -->
-    <div class="columns">
-
-      <div class="column is-6" style="border: 1px dashed gray">
-
-
-        <div class="level">
-          <div class="column is-3" style="border: 1px dashed gray">
-            <button @click="attackAZombieActivity" class="button is-small">Find</button>
-
-          </div>
-
-          <div class="column is-9" style="border: 1px dashed gray">
-            <progress class="progress is-primary is-small" :value="randomZombieHP" max="100"> </progress>
-          </div>
+ <div v-if="plCurrActivity==='fight'" class="column is-6" style="border: 1px dashed gray">
+    <div class="level" style="border: 1px dashed gray; min-height: 2em">
+            <p>{{ bossKilledMsg }}</p>
         </div>
-      </div>
-    </div>
+    <div class="level">
 
-  </div> <!-- container -->
+        <div class="column is-6">
+         <label style="text-align: center"> Boss HP
+          <progress class="progress is-danger is-small" :value="bossEnergy" max="100">{{ bossEnergy}}</progress>
+        </label>
+        </div>
+        <div class="column is-3">
+        <button @click="figthABoss" style="height: 100px; width: 100px" :disabled="!bossIsAlive">Kill</button>
+         </div>
+        
+    </div> <!-- lvel -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+ </div>
+      
+
+
+
+</div> <!-- container -->
 
 
 
@@ -224,23 +180,14 @@
   <br>
   <br>
 
-  <table class="table is-narrow is-bordered">
-    <tr>
-      <td><button @click="addEnergy">Add E</button></td>
-      <td><button @click="resetEnergy">Reset E</button></td>
-      <td><button @click="a_addFood">Food 50</button></td>
-
-    </tr>
-  </table>
-
-
-
-
-
-
-
-
-
+    <button @click="a_resetPlEnergy">Reset Energy</button>
+    <button @click="a_energyMinus10">Energy - 10</button>
+    <button @click="a_energyPlus10">Energy + 10</button>
+    <button @click="a_resetFood">Reset food</button>
+    <br>
+    <button @click="a_resetExp">Reset exp</button>
+    <button @click="a_resetTrain">Reset train</button>
+    <button @click="a_resetZombies">Reset zombies</button>
 
 </div>
 
