@@ -37,6 +37,27 @@ var activityModifiers = {
   },
 }
 
+var bosses = [
+  {
+    name: 'Undead Demon',
+    bossHp: 2000,
+    loot: 10,
+    url:'https://i.imgur.com/QtpjvKh.png'
+  },
+  {
+    name: 'Archangel Halipus',
+    bossHp: 800,
+    loot: 4,
+    url:'https://i.imgur.com/1CS1R8D.png'
+  },
+  {
+    name: 'Burharmad',
+    bossHp: 8000,
+    loot: 30,
+    url:'https://i.imgur.com/PCUAcal.png'
+  },
+]
+
 
 var settings = {
   //admin
@@ -81,12 +102,13 @@ var app = new Vue({
     showTimeAway:true,
 
 
+    bossMenuActive: false,
+    mouseDownIntervals:[],
+    plBossesKilledCount: (get('plBossesKilledCount')) ? parseInt(get('plBossesKilledCount')) : 0,
 
-    bossEnergy:100,
-    fightingABoss:false,
-    bossKilledMsg:'',
-    bossFound: true,
-    bossIsAlive: true,
+    bossStatusMsg:'',
+    bossHp: NaN,
+    bossImageUrl:'',
 
   },
 
@@ -110,7 +132,6 @@ var app = new Vue({
       plEnergy -= energyPoints
       this.plEn = plEnergy.toFixed(2)
     },
-
 
 
 
@@ -180,47 +201,9 @@ var app = new Vue({
       }
     },
 
-    fight() {
 
-        if(this.plEn > 10) {
-            ll('Im now fighting')
-            this.decreaseEnergy(globalThat.activityModifiers.fighting.energy)
-            if(this.bossFound) {
-              this.bossKilledMsg = 'Here is a boss.. waiting to be killed'
-            }
-      } else {
-            ll('I dont have any energy left to hunt... i have to sit')
-            this.plCurrActivity = 'sit'
-            this.startActivity()
-      }
 
-    },
 
-    figthABoss() {
-      var that =  this
-      this.fightingABoss = true
-      if(this.bossEnergy > 0) {
-        this.bossEnergy -= createRand(10)
-      } else {
-        this.fightingABoss = false
-        this.bossKilledMsg = 'Boss is now dead.'
-        this.plExp += 1000
-        this.plFood += 100
-        this.bossFound = false
-        this.bossIsAlive = false
-
-        setTimeout(function () {
-          that.bossKilledMsg = 'Searching....'
-        },2000)
-
-        setTimeout(function () {
-          that.bossFound = true
-          that.bossIsAlive = true
-          that.bossEnergy = 100
-        },5000)
-      }
-
-    },
 
 
 
@@ -252,12 +235,6 @@ var app = new Vue({
       ll('Begin hunting..')
       var huntingInterval = setInterval(this.hunt, globalThat.settings.activityIntervals)
       this.activityIntervals.push(huntingInterval)
-    },
-
-  fightingActivity() {
-      ll('Begin fighting..')
-      var fightingInterval = setInterval(this.fight, globalThat.settings.activityIntervals)
-      this.activityIntervals.push(fightingInterval)
     },
 
   clearActivityIntervals() {
@@ -307,7 +284,33 @@ var app = new Vue({
 
   },
 
+    searchAgain() {
+    this.bossHp = NaN
+      this.bossImageUrl = 'https://i.imgur.com/JcImZPt.gif'
+    this.$refs["searchBoss"].removeAttribute('value')
+    this.createBoss()
 
+    },
+
+  createBoss() {
+      var that = this
+      this.bossStatusMsg = 'Looking for a boss'
+
+      setTimeout(function () {
+         var randBoss = globalThat.bosses[createRand(3)]
+        that.bossStatusMsg = 'Boss found: ' + randBoss.name
+        that.bossHp = randBoss.bossHp
+        that.bossImageUrl = randBoss.url
+         that.$refs["searchBoss"].setAttribute('value', that.bossHp)
+      }, 2000)
+
+      ll('Im here')
+  },
+
+  bossFighting() {
+    this.bossMenuActive = (!this.bossMenuActive);
+    this.createBoss()
+    },
 
 
 
@@ -452,6 +455,7 @@ var app = new Vue({
   set('plZombiesKilled', this.plZombiesKilled)
   set('plExp', this.plExp)
   set('plTrain', this.plTrain)
+  set('plBossesKilledCount', this.plBossesKilledCount)
   },
 
   a_resetPlEnergy() {
