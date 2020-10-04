@@ -10,6 +10,9 @@ function ll(logMsg) {
   console.log(logMsg)
 }
 
+function randNumBetw(min, max) { // min and max included
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
 var activityModifiers = {
   sitting: {
     energy:0.2,
@@ -109,6 +112,7 @@ var app = new Vue({
     bossStatusMsg:'',
     bossHp: NaN,
     bossImageUrl:'',
+    bossIsNowDead:false,
 
   },
 
@@ -292,9 +296,25 @@ var app = new Vue({
 
     },
 
+  killBoss() {
+    this.bossHp -= createRand(200)
+    var that = this
+    if(this.bossHp<0) {
+      this.bossIsNowDead = true
+      this.plBossesKilledCount += 1
+      this.plExp += 100
+      this.plFood += 500
+      setTimeout(function () {
+        that.searchAgain()
+      },200)
+
+    }
+
+  },
+
   createBoss() {
       var that = this
-      this.bossStatusMsg = 'Looking for a boss'
+      this.bossStatusMsg = 'Searching for boss monster...'
 
       setTimeout(function () {
          var randBoss = globalThat.bosses[createRand(3)]
@@ -302,7 +322,9 @@ var app = new Vue({
         that.bossHp = randBoss.bossHp
         that.bossImageUrl = randBoss.url
          that.$refs["searchBoss"].setAttribute('value', that.bossHp)
-      }, 2000)
+         that.$refs["searchBoss"].setAttribute('max', that.bossHp)
+        that.bossIsNowDead = false
+      }, randNumBetw(500,5000))
 
       ll('Im here')
   },
@@ -502,8 +524,8 @@ var app = new Vue({
 
 
   mounted() {
-    setInterval(this.saveData, 2000)
-    this.runActivitiesSinceLastTime()
+    //setInterval(this.saveData, 2000)
+    //this.runActivitiesSinceLastTime()
     this.startActivity()
 
 
