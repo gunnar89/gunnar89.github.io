@@ -50,10 +50,9 @@
         <p>You were away: {{ plTimeAway }}</p>
       </div>
 
-<div class="columns">
+<div class="columns bbb" style="padding: 1em">
    <!-- progress -->
         <div class="column is-6">
-
           <label> HP
           <progress class="progress is-primary is-small" :value="plHp" max="100"></progress>
         </label>
@@ -63,73 +62,97 @@
 
 
         </div>
-
-
 </div>
 
 
-<!-- Button -->
+
 <div class="columns">
-      <div class="column is-1" style="border: 1px dashed grey">
-        <button @click="setActivity('sit')"  class="button is-small actionButton ">Sit</button><br>
-          <button @click="setActivity('sleep')" class="button is-small actionButton" >Sleep</button><br>
-          <button @click="setActivity('explore')" class="button is-small actionButton" >Explore</button><br>
-          <button @click="setActivity('train')" class="button is-small actionButton" >Train</button><br>
-          <button @click="setActivity('hunt')" class="button is-small actionButton" >Hunt</button><br>
-          <button @click="bossFighting" class="button is-small actionButton" >Fight</button><br>
-</div>
+    <div class="column is-12 bbb">
+
+        <div class="level">
+            <!-- table -->
+            <div class="column is-4">
+                <table class="table is-narrow is-bordered">
+                    <tr>
+                        <td>Activity:</td>
+                        <td>{{ plCurrActivity }}</td>
+                    </tr>
+
+                    <tr>
+                        <td>Bosses killed</td>
+                        <td>{{ plBossesKilledCount }}</td>
+                    </tr>
 
 
-        <!-- table -->
-        <div class="column is-5" style="border: 1px dashed grey">
+                    <tr>
+                        <td>Zombies killed</td>
+                        <td>{{ plZombiesKilled }}</td>
+                    </tr>
 
-       
-          <table class="table is-narrow is-bordered">
+                    <tr>
+                        <td>Exp</td>
+                        <td>{{ plExp }}</td>
+                    </tr>
 
-            <tr>
-              <td>Activity:</td>
-              <td>{{ plCurrActivity }}</td>
-            </tr>
-
-                   <tr>
-              <td>Bosses killed</td>
-              <td>{{ plBossesKilledCount }}</td>
-            </tr>
-
-
-              <tr>
-              <td>Zombies killed</td>
-              <td>{{ plZombiesKilled }}</td>
-            </tr>
-
-            <tr>
-              <td>Exp</td>
-              <td>{{ plExp }}</td>
-            </tr>
-
-            <tr>
-              <td>Train</td>
-              <td>{{ plTrain }}</td>
-            </tr>
+                    <tr>
+                        <td>Train</td>
+                        <td>{{ plTrain }}</td>
+                    </tr>
 
 
-            <tr>
-              <td>Energy</td>
-              <td>{{ plEn }}</td>
-            </tr>
+                    <tr>
+                        <td>Energy</td>
+                        <td>{{ plEn }}</td>
+                    </tr>
 
-            <tr>
-              <td>Food</td>
-                <td>{{ plFood }}</td>
-                <td><button :disabled="((this.plFood < 1) || (this.plEn > 100))" @click="eatFood">Eat</button></td>
-            </tr>
-
-
-          </table>
-        </div>
+                    <tr>
+                        <td>Food</td>
+                        <td>{{ plFood }}</td>
+                        <td>
+                            <button :disabled="((this.plFood < 1) || (this.plEn > 100))" @click="eatFood">Eat</button>
+                        </td>
+                    </tr>
 
 
+                </table>
+            </div>
+
+
+                      <div class="column is-1"> <!-- button -->
+                <button @click="setActivity('sit')" class="button is-small is-dark ">Sit</button>
+
+                <button @click="setActivity('sleep')" class="button is-small is-dark ">Sleep</button>
+
+                <button @click="setActivity('explore')" class="button is-small is-dark ">Explore</button>
+
+                <button @click="setActivity('train')" class="button is-small is-dark ">Train</button>
+
+                <button @click="setActivity('hunt')" class="button is-small is-dark ">Hunt</button>
+
+                <button @click="bossFighting" class="button is-small is-dark ">Fight</button>
+            </div> <!-- button -->
+
+
+
+
+        </div> <!-- level -->
+
+
+    </div>
  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       <div v-if="bossMenuActive" class="column is-6 bbb">
           <div class="level bbb" style="min-height: 2em">
@@ -147,9 +170,9 @@
                   <div class="tile is-child" style="max-width: 150px">
                   <img :src="bossImageUrl" style="max-width: 150px">
               </div>
-                  <label style="text-align: center"> Boss HP <span v-if="!isNaN(bossHp)"> {{ bossHp }}</span>
+                  <label style="text-align: center"><span v-if="!isNaN(bossHp)"> Boss HP: <span style="color:red; font-weight: bold; font-size: 1.45em">{{ bossHp }} </span></span>
                       <progress style="max-width: 150px" ref="searchBoss" class="progress is-danger is-small" :value="bossHp"
-                                max="100"></progress>
+                                max="3000"></progress>
                   </label>
               </div>
 
@@ -159,10 +182,10 @@
               <!-- kill button -->
               <div class="tile is-child bbb is-vertical ">
                   <div class="tile">
-                      <button style="height: 100px; width: 100px">Kill</button>
+                      <button :disabled="bossIsNowDead" @click="killBoss" style="height: 100px; width: 100px">Kill</button>
                   </div>
                   <div class="tile">
-                      <button @click="searchAgain" style="height: 40px; width: 100px">Again</button>
+                      <button  @click="searchAgain" style="height: 40px; width: 100px">Again</button>
                   </div>
               </div>
 
@@ -213,6 +236,7 @@
     <button @click="a_resetExp">Reset exp</button>
     <button @click="a_resetTrain">Reset train</button>
     <button @click="a_resetZombies">Reset zombies</button>
+
 
 </div>
 
