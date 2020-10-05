@@ -21,7 +21,7 @@ function randNumBetw(min, max) { // min and max included
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-
+//todo mouse down intervals not clearing.
 var activityModifiers = {
   healing:{
     sleeping:2,
@@ -189,8 +189,13 @@ var app = new Vue({
     //script
     healingIntervals: [],
     activityIntervals: [],
-    plTimeAway: '',
+    plTimeAway: 'asdas',
     showTimeAway:true,
+
+
+    //logging
+    currentTime: '',
+
   },
 
   methods: {
@@ -346,6 +351,7 @@ var app = new Vue({
     if (this.activityIntervals) {
       for (var inter of this.activityIntervals) {
         clearInterval(inter)
+        this.activityIntervals = []
         ll('Interval cleared')
       }
     }
@@ -389,7 +395,22 @@ var app = new Vue({
 
   },
 
+  writeLog() {
+    var n = new Date()
+    var seconds = n.getSeconds()
+    var minutes = n.getMinutes()
+    var hours = n.getHours()
 
+    this.currentTime = hours + ':' + minutes+ ':'+ seconds +'| '+ this.plCurrActivity +' ' + this.plEn
+    var ullist = this.$refs['ullist']
+    var lii = document.createElement('li')
+    lii.appendChild(document.createTextNode(this.currentTime))
+    ullist.prepend(lii)
+
+
+
+
+  },
 
 
   //after user returns
@@ -661,7 +682,9 @@ var app = new Vue({
   //boss
     //cancel killing activity
   buttonUp() {
-     clearInterval(this.mouseDownIntervals[0])
+    clearInterval(this.mouseDownIntervals[0])
+    //this.mouseDownIntervals = []
+
   },
      //start killing activity
   buttonDown() {
@@ -695,7 +718,7 @@ var app = new Vue({
 
     if(aHit >  this.bossHp) {
       this.bossHp = 0
-      clearInterval(this.mouseDownIntervals[0])
+      this.buttonUp()
       this.bossIsNowDead = true
       this.plBossesKilledCount += 1
       this.plExp += parseInt(globalThat.currentMonster.exp)
@@ -743,7 +766,7 @@ var app = new Vue({
 
 
   saveData() {
-
+  this.writeLog()
   set('plHp', this.plHp)
   set('plEn', this.plEn)
   set('plCurrActivity', this.plCurrActivity)
