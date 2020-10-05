@@ -50,13 +50,28 @@
 <div id="app">
 
   <div class="container">
-      <div v-if="showTimeAway">
-        <p>You were away: {{ plTimeAway }}</p>
-      </div>
 
-<div class="columns bbb" style="padding: 1em">
+
+<div class="columns">
+    <span class="column is-6">
+
+            <span style="padding: 1em 0 0 0.5em ">
+                <span style="font-weight: bolder">
+                    Message:
+                </span>
+                <span v-if="showTimeAway">
+                <span>
+                    Seconds since last save: {{ plTimeAway }}
+                </span>
+                </span>
+            </span>
+
+
+
+</div>
+<div class="columns bbb" style="padding: 0.2em 0 0 0.5em ">
    <!-- progress -->
-        <div class="column is-6">
+        <div class="column is-2">
           <label> HP
           <progress class="progress is-primary is-small" :value="plHp" max="100"></progress>
         </label>
@@ -113,7 +128,7 @@
                         <td>Food</td>
                         <td>{{ plFood }}</td>
                         <td>
-                            <button :disabled="((this.plFood < 1) || (this.plEn > 100))" @click="eatFood">Eat</button>
+                            <button :disabled="((this.plFood < 1) || (this.plEn > 99))" @click="eatFood" class="button is-small is-dark" style="min-width: 50px; margin-bottom: 5px; font-size: 0.75em">Eat</button>
                         </td>
                     </tr>
 
@@ -123,17 +138,18 @@
 
 
                       <div class="column is-1"> <!-- button -->
-                <button @click="setActivity('sit')" class="button is-small is-dark ">Sit</button>
 
-                <button @click="setActivity('sleep')" class="button is-small is-dark ">Sleep</button>
+                <button @click="setActivity('sit')" class="button is-small is-dark " style="min-width: 100px; margin-bottom: 5px; font-size: 1em">Sit</button>
 
-                <button @click="setActivity('explore')" class="button is-small is-dark ">Explore</button>
+                <button @click="setActivity('sleep')" class="button is-small is-dark" style="min-width: 100px; margin-bottom: 5px; font-size: 1em">Sleep</button>
 
-                <button @click="setActivity('train')" class="button is-small is-dark ">Train</button>
+                <button @click="setActivity('explore')" class="button is-small is-dark" style="min-width: 100px; margin-bottom: 5px; font-size: 1em">Explore</button>
 
-                <button @click="setActivity('hunt')" class="button is-small is-dark ">Hunt</button>
+                <button @click="setActivity('train')" class="button is-small is-dark" style="min-width: 100px; margin-bottom: 5px; font-size: 1em">Train</button>
 
-                <button @click="bossFighting" class="button is-small is-dark ">Fight</button>
+                <button @click="setActivity('hunt')" class="button is-small is-dark" style="min-width: 100px; margin-bottom: 5px; font-size: 1em">Hunt</button>
+
+                <button @click="bossFighting" class="button is-small is-dark" style="min-width: 100px; margin-bottom: 5px; font-size: 1em">Fight</button>
             </div> <!-- button -->
 
 
@@ -186,7 +202,7 @@
               <!-- kill button -->
               <div class="tile is-child bbb is-vertical ">
                   <div class="tile">
-                      <button :disabled="bossIsNowDead" @mousedown="buttonKlicked" @mouseup="cancelKilling" style="height: 100px; width: 100px">Kill</button>
+                      <button :disabled="bossIsNowDead" @mousedown="buttonDown" @mouseup="buttonUp" style="height: 100px; width: 100px">Kill</button>
                   </div>
                   <div class="tile">
                       <button  @click="searchAgain" style="height: 40px; width: 100px">Again</button>
@@ -233,6 +249,7 @@
   <br>
 
     <button @click="a_resetPlEnergy">Reset Energy</button>
+    <button @click="a_resetPlHp">Reset Hp</button>
     <button @click="a_energyMinus10">Energy - 10</button>
     <button @click="a_energyPlus10">Energy + 10</button>
     <button @click="a_resetFood">Reset food</button>
