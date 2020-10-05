@@ -47,13 +47,13 @@
 
 
 
-<div id="app">
+<div id="app" style="background: rgba(235,238,238,0.6)">
 
   <div class="container">
 
 
 <div class="columns">
-    <span class="column is-6">
+    <span class="column is-6" style="background: rgba(235,238,238,0.35)">
 
             <span style="padding: 1em 0 0 0.5em ">
                 <span style="font-weight: bolder">
@@ -232,21 +232,10 @@
 </div> <!-- container -->
 
 
+<hr>
+  <br>
+  <br>
 
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
 
     <button @click="a_resetPlEnergy">Reset Energy</button>
     <button @click="a_resetPlHp">Reset Hp</button>
@@ -257,9 +246,11 @@
     <button @click="a_resetExp">Reset exp</button>
     <button @click="a_resetTrain">Reset train</button>
     <button @click="a_resetZombies">Reset zombies</button>
-    
-    
-    
+    <div style="margin-left:100px">
+    <ul ref="ullist">
+        <li>Time</li>
+    </ul>
+    </div>
 
 </div> <!-- TO HERE -->
 
