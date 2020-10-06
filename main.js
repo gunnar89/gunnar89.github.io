@@ -425,37 +425,84 @@ var app = new Vue({
 
 
 
-  switch (this.plCurrActivity) {
+    switch (this.plCurrActivity) {
 
-  case "sit":
-      ld('Sit ticks while away: '+ticksWhileAway)
-      var enLost = this.convertEnergyDecreaseWhileAwayToPoints('sit', ticksWhileAway)
-      var lastEnergySaved = globalThat.get('plEn')
-      var plNewEnergy = lastEnergySaved - enLost
-      ld('New Energy after sitting should be: ' + plNewEnergy)
+      case "sit":
+          ld('Sit ticks while away: '+ticksWhileAway)
+          var enLost = this.convertEnergyDecreaseWhileAwayToPoints('sit', ticksWhileAway)
+          var lastEnergySaved = globalThat.get('plEn')
+          var plNewEnergy = lastEnergySaved - enLost
+          ld('New Energy after sitting should be: ' + plNewEnergy)
 
-      //start sleep
-      if(plNewEnergy<0) {
-        var sleepTicksLeft = this.convertFromPointsToTicks('sit', ticksWhileAway)
-        ld('ticks to use on sleep: '+sleepPoints)
-      }
-
-
-      this.plEn = plNewEnergy
-      this.plCurrActivity = 'sit'
-    break;
-
-    case 'sleep':
+          //start sleep
+          if(plNewEnergy<0) {
+            var sleepTicksLeft = this.convertFromPointsToTicks('sit', ticksWhileAway)
+            ld('ticks to use on sleep: '+sleepPoints)
+          }
 
 
+          this.plEn = plNewEnergy
+          this.plCurrActivity = 'sit'
+        break;
 
-    case "explore":
+      case 'sleep':
 
-      ld('Explore ticks while away: '+ticksWhileAway)
+      case "explore":
 
-        var enLost = this.convertEnergyDecreaseWhileAwayToPoints('explore', ticksWhileAway)
+        ld('Explore ticks while away: '+ticksWhileAway)
 
-        ld('Energy lost while exploring: ' + enLost)
+          var enLost = this.convertEnergyDecreaseWhileAwayToPoints('explore', ticksWhileAway)
+
+          ld('Energy lost while exploring: ' + enLost)
+
+          var lastEnergySaved = globalThat.get('plEn')
+
+          ld('Last energy save: ' + lastEnergySaved)
+
+          var plNewEnergy = lastEnergySaved - enLost
+
+          ld('New Energy should be: ' + plNewEnergy)
+
+          //todo randomize foods after away ticks
+        if(plNewEnergy>0) {
+          ld('food before ticks: ' + this.plFood )
+          this.plEn = plNewEnergy.toFixed(2)
+          this.plFood += (ticksWhileAway * globalThat.settings.maxFoodFoundWhileExploring)*0.5
+          ld('food After ticks: ' + this.plFood )
+          this.plCurrActivity = 'explore'
+          this.startActivity()
+
+
+        } else {
+
+            var sleepTicksLeft = this.convertFromPointsToTicks('explore', Math.abs(plNewEnergy))
+            ld('ticks left after exploring to use on sleep: '+sleepTicksLeft)
+            ld('converting to sleep..')
+            var sleepEnergy = this.convertEnergyIncreaseWhileAwayToPoints('sleep', sleepTicksLeft)
+            ld('These ticks converted to energy by sleep: ' + sleepEnergy)
+            this.plEn = sleepEnergy.toFixed(2)
+
+            if(sleepEnergy <101) {
+              this.plCurrActivity = 'sleep'
+            } else {
+              this.plCurrActivity = 'sit'
+            }
+
+            //Vue.set('plEn', sleepEnergy.toFixed(2))
+        } //else
+
+
+
+
+
+      break;
+
+      case "train":
+        ld('Train ticks while away: '+ticksWhileAway)
+
+        var enLost = this.convertEnergyDecreaseWhileAwayToPoints('train', ticksWhileAway)
+
+        ld(' lost while exploring: ' + enLost)
 
         var lastEnergySaved = globalThat.get('plEn')
 
@@ -466,85 +513,101 @@ var app = new Vue({
         ld('New Energy should be: ' + plNewEnergy)
 
 
-      if(plNewEnergy>0) {
+        if(plNewEnergy>0) {
+          ld('energy before ticks: ' + this.plEn )
+          this.plEn = plNewEnergy.toFixed(2)
+          ld('energy after ticks: ' + this.plEn )
+          ld('-------------------')
+          ld('train before ticks: ' + this.plTrain )
+          this.plTrain += (ticksWhileAway * globalThat.settings.trainingPointsPerTick)*0.5
+          ld('train After ticks: ' + this.plTrain )
+          this.plCurrActivity = 'train'
+          this.startActivity()
 
-        this.plEn = plNewEnergy.toFixed(2)
+        } else {
 
-      } else {
+            var sleepTicksLeft = this.convertFromPointsToTicks('explore', Math.abs(plNewEnergy))
+            ld('ticks left after exploring to use on sleep: '+sleepTicksLeft)
+            ld('converting to sleep..')
+            var sleepEnergy = this.convertEnergyIncreaseWhileAwayToPoints('sleep', sleepTicksLeft)
+            ld('These ticks converted to energy by sleep: ' + sleepEnergy)
+            this.plEn = sleepEnergy.toFixed(2)
 
-          var sleepTicksLeft = this.convertFromPointsToTicks('explore', Math.abs(plNewEnergy))
-          ld('ticks left after exploring to use on sleep: '+sleepTicksLeft)
-          ld('converting to sleep..')
-          var sleepEnergy = this.convertEnergyIncreaseWhileAwayToPoints('sleep', sleepTicksLeft)
-          ld('These ticks converted to energy by sleep: ' + sleepEnergy)
-          this.plEn = sleepEnergy.toFixed(2)
+            if(sleepEnergy <101) {
+              this.plCurrActivity = 'sleep'
+            } else {
+              this.plCurrActivity = 'sit'
+              this.startActivity()
+            }
 
-          if(sleepEnergy <101) {
-            this.plCurrActivity = 'sleep'
-          } else {
-            this.plCurrActivity = 'sit'
-          }
-
-          //Vue.set('plEn', sleepEnergy.toFixed(2))
-
-
-      }
+            //Vue.set('plEn', sleepEnergy.toFixed(2))
+        } //else
+        break;
 
 
 
 
+      case "hunt":
+        ld('Hunt ticks while away: '+ticksWhileAway)
 
-    break;
+        var enLost = this.convertEnergyDecreaseWhileAwayToPoints('hunt', ticksWhileAway)
 
-  case "train":
-    ld('Train ticks while away: '+ticksWhileAway)
+        ld('Energy lost while hunting: ' + enLost)
 
-    var enLost = this.convertEnergyDecreaseWhileAwayToPoints('train', ticksWhileAway)
+        var lastEnergySaved = globalThat.get('plEn')
 
-    ld(' lost while exploring: ' + enLost)
+        ld('Last energy save: ' + lastEnergySaved)
 
-    var lastEnergySaved = globalThat.get('plEn')
+        var plNewEnergy = lastEnergySaved - enLost
 
-    ld('Last energy save: ' + lastEnergySaved)
+        ld('New Energy should be: ' + plNewEnergy)
+        //todo points while hunting while away
+       if(plNewEnergy>0) {
+          ld('energy before ticks: ' + this.plEn )
+          this.plEn = plNewEnergy.toFixed(2)
+          ld('energy after ticks: ' + this.plEn )
+          ld('-------------------')
+          ld('exp before ticks: ' + this.plExp )
+          this.plExp += (ticksWhileAway * globalThat.settings.expPointsWhileHunting)*0.5
+          ld('exp After ticks: ' + this.plExp )
+          this.plCurrActivity = 'hunt'
+          this.startActivity()
 
-    var plNewEnergy = lastEnergySaved - enLost
+        } else {
 
-    ld('New Energy should be: ' + plNewEnergy)
+            var sleepTicksLeft = this.convertFromPointsToTicks('explore', Math.abs(plNewEnergy))
+            ld('ticks left after exploring to use on sleep: '+sleepTicksLeft)
+            ld('converting to sleep..')
+            var sleepEnergy = this.convertEnergyIncreaseWhileAwayToPoints('sleep', sleepTicksLeft)
+            ld('These ticks converted to energy by sleep: ' + sleepEnergy)
+            this.plEn = sleepEnergy.toFixed(2)
 
-    this.plEn = plNewEnergy
-    this.plCurrActivity = 'train'
-    break;
+            if(sleepEnergy <101) {
+              this.plCurrActivity = 'sleep'
+            } else {
+              this.plCurrActivity = 'sit'
+              this.startActivity()
+            }
 
-  case "hunt":
-    ld('Hunt ticks while away: '+ticksWhileAway)
+            //Vue.set('plEn', sleepEnergy.toFixed(2))
+        } //else
+        break;
 
-    var enLost = this.convertEnergyDecreaseWhileAwayToPoints('hunt', ticksWhileAway)
 
-    ld('Energy lost while hunting: ' + enLost)
 
-    var lastEnergySaved = globalThat.get('plEn')
 
-    ld('Last energy save: ' + lastEnergySaved)
 
-    var plNewEnergy = lastEnergySaved - enLost
-
-    ld('New Energy should be: ' + plNewEnergy)
-
-    this.plEn = plNewEnergy
-    this.plCurrActivity = 'hunt'
-    break;
-
-  case "fight":
-    ll('I was fight this many times: ' + secondsSinceLastLogin)
-    while (secondsSinceLastLogin > 0) {
-      this.fight()
-      secondsSinceLastLogin -= 1
+      case "fight":
+        ll('I was fight this many times: ' + secondsSinceLastLogin)
+        while (secondsSinceLastLogin > 0) {
+          this.fight()
+          secondsSinceLastLogin -= 1
+        }
+        ll('Now im done fighting..')
+        this.plCurrActivity = 'fight'
+        break;
+      s
     }
-    ll('Now im done fighting..')
-    this.plCurrActivity = 'fight'
-    break;
-  s
-  }
 
 
 
@@ -784,7 +847,7 @@ var app = new Vue({
   },
 
 
-    a_resetPlHp() {
+  a_resetPlHp() {
       this.plHp = 100;
     },
   a_resetFood() {
