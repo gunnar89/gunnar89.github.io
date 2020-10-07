@@ -12,27 +12,27 @@ var activityModifiers = {
     sleeping:2,
   },
   sitting: {
-    energy:1,
+    energy:0.002,
     hp:1,
   },
   sleeping: {
-    energy:1,
+    energy:0.002,
     hp:1,
   },
   exploring: {
-    energy:1,
+    energy:0.0095,
     hp:1,
   },
   training: {
-    energy:1,
+    energy:0.02,
     hp:1,
   },
   hunting: {
-    energy:1,
+    energy:0.03,
     hp:1,
   },
   fighting: {
-    energy:1,
+    energy:0.1,
     hp:1,
   },
 }
@@ -44,7 +44,7 @@ var bosses = [
     loot: 10,
     url:'https://i.imgur.com/QtpjvKh.png',
     food:10,
-    exp:50,
+    exp:500,
   },
   {
     name: 'Undead Demon 2',
@@ -52,7 +52,7 @@ var bosses = [
     loot: 10,
     url:'https://i.imgur.com/QtpjvKh.png',
     food:15,
-    exp:70,
+    exp:700,
   },
   {
     name: 'Undead Demon 3',
@@ -60,7 +60,7 @@ var bosses = [
     loot: 10,
     url:'https://i.imgur.com/QtpjvKh.png',
     food:30,
-    exp:90,
+    exp:900,
   },
   {
     name: 'Archangel Halipus',
@@ -68,7 +68,7 @@ var bosses = [
     loot: 4,
     url:'https://i.imgur.com/1CS1R8D.png',
     food:8,
-    exp:40,
+    exp:400,
   },
   {
     name: 'Burharmad',
@@ -76,7 +76,7 @@ var bosses = [
     loot: 30,
     url:'https://i.imgur.com/PCUAcal.png',
     food:30,
-    exp:80,
+    exp:800,
   },
   {
     name: 'Burharmad 2',
@@ -84,7 +84,7 @@ var bosses = [
     loot: 50,
     url:'https://i.imgur.com/PCUAcal.png',
     food:60,
-    exp:120,
+    exp:1200,
   },
   {
     name: 'Burharmad 3',
@@ -92,7 +92,7 @@ var bosses = [
     loot: 100,
     url:'https://i.imgur.com/PCUAcal.png',
     food:100,
-    exp:120,
+    exp:1200,
   },
 ]
 //todo energy resets whe refreshing..
@@ -122,7 +122,27 @@ var settings = {
   energyIncreasePerFood:2, //min - max
 }
 
+function calculateExpPoints(expPoints) {
+  ld(Math.floor(((expPoints/1000)+1)))
 
+}
+
+function foundAZombieTokill() {
+  var r = createRand(100)
+  if(r>95) {
+    ll('Zombie found!')
+    return true
+  }
+}
+
+function foundFood() {
+  var r = createRand(500)
+  if(r>490) {
+    ll('Food found!')
+
+    return true
+  }
+}
 
 
 //wrappers
@@ -142,8 +162,9 @@ function get(what) {
   return mstore.getItem(what)
 }
 
-
-
+function nn(number) {
+  return parseFloat(Number(number))
+}
 function randNumBetw(min, max) { // min and max included
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -172,7 +193,7 @@ var app = new Vue({
     plFood:(get('plFood')) ? parseInt(get('plFood')) :10,
     isHealing:false,
     notEnoughFood: false,
-
+    truncatedEn: '',
     //statistics
     plZombiesKilled: (get('plZombiesKilled')) ? parseInt(get('plZombiesKilled')) : 0,
     plBossesKilledCount: (get('plBossesKilledCount')) ? parseInt(get('plBossesKilledCount')) : 0,
@@ -207,28 +228,18 @@ var app = new Vue({
 
   methods: {
 
-    monsterHit() {
-      ld('Monster was hit!')
 
-      var that = this
-      var aHit = createRand(1000)
-
-      if(aHit >  this.bossHp) {
-
-        this.bossHp = 0
-        this.bossIsNowDead = true
-        this.plBossesKilledCount += 1
-        this.loot()
-      } else {
-        this.bossHp -= aHit
-      }
+    truncatedEnf() {
+      var tmp = String(parseFloat(this.plEn).toFixed(4))
+      this.truncatedEn = tmp.slice(0,-2)
     },
-
 
     eatFood() {
 
       this.plFood -= 1
       this.increaseEnergy(globalThat.settings.energyIncreasePerFood)
+      this.plHp += 10
+      this.plEn += 10
 
     },
 
@@ -244,25 +255,26 @@ var app = new Vue({
       }
     },
 
-
     increaseEnergy(energyPoints) {
-      var energyLeftToFull = parseFloat(100) - parseFloat(this.plEn)
-      if(parseFloat(energyPoints) > energyLeftToFull.toFixed(2)) {
-        this.plEn = 100
-      } else {
-        this.plEn = parseFloat(this.plEn) + energyPoints
+      if(this.plEn > 100) {
+        this.startSittingActivity()
       }
+      this.plEn += parseFloat(energyPoints)
+      this.plEn = Number(parseFloat(this.plEn).toFixed(4))
+      this.truncatedEnf()
     },
 
     decreaseEnergy(energyPoints) {
-      var decimaled = parseFloat(this.plEn).toFixed(6)
+      var decimaled = parseFloat(this.plEn)
       if(energyPoints > decimaled) {
         this.plEn = 0
         //todo return?!
        return
       }
-      decimaled -= energyPoints.toFixed(6)
-      this.plEn = decimaled.toFixed(2)
+      decimaled -= energyPoints
+      this.plEn = decimaled.toFixed(4)
+      this.truncatedEnf()
+
     },
 
 
@@ -293,15 +305,16 @@ var app = new Vue({
       if(this.plEn > 0 ) {
         this.decreaseEnergy(globalThat.activityModifiers.exploring.energy)
         //todo items found while exploring
-        this.plFood += 1
+        if(globalThat.foundFood()){
+          this.plFood += 1
+        }
         //todo food check
         if(this.plFood<1 ) {
           this.notEnoughFood = true
         }
       } else {
         ll('No energy, i have to sleep')
-        this.plCurrActivity = 'sleep'
-        this.startActivity()
+        this.startSleepingActivity()
       }
 
     },
@@ -310,22 +323,22 @@ var app = new Vue({
       ll('training now...')
       if(this.plEn > 0) {
         this.decreaseEnergy(globalThat.activityModifiers.training.energy)
-        this.plTrain += 1
+        this.plTrain += globalThat.settings.trainingPointsPerTick
 
       } else {
         ll('I dont have any energy left to train... i have to sit')
-        this.plCurrActivity = 'sit'
-        this.startActivity()
+        this.startSittingActivity()
       }
     },
 
     hunt() {
       ll('Happy hunting')
       if(this.plEn > 0) {
-        this.plHp -= 1
+
         this.decreaseEnergy(globalThat.activityModifiers.hunting.energy)
-        this.plZombiesKilled += 1
-        this.plExp += 1
+
+        this.plZombiesKilled += globalThat.foundAZombieTokill() ? 1 : 0
+        this.plExp += randNumBetw(1,3)
 
       } else {
         ll('I dont have any energy left to hunt... i have to sit')
@@ -524,6 +537,7 @@ var app = new Vue({
       switch (this.plCurrActivity) {
 
         case "sit":
+
             ld('Sit ticks while away: '+ticksWhileAway)
             var enLost = this.convertEnergyDecreaseWhileAwayToPoints('sit', ticksWhileAway)
             var lastEnergySaved = globalThat.get('plEn')
@@ -542,6 +556,21 @@ var app = new Vue({
           break;
 
         case 'sleep':
+          var lastEnergySaved = globalThat.get('plEn')
+          ld('Sleep ticks while away: '+ticksWhileAway)
+          var enGained = this.convertEnergyIncreaseWhileAwayToPoints('sleep', ticksWhileAway)
+          ld('Energy gained while sleeping: ' + enGained)
+          ld('Last energy save: ' + lastEnergySaved)
+          var plNewEnergy = parseInt(lastEnergySaved) + parseInt(enGained)
+            ld('New Energy should be: ' + plNewEnergy)
+            if(plNewEnergy>100) {
+                this.plEn = 100
+                this.startSittingActivity()
+            } else {
+                this.plEn = plNewEnergy
+                this.startSleepingActivity()
+            }
+          break;
 
         case "explore":
 
@@ -565,8 +594,7 @@ var app = new Vue({
             this.plEn = plNewEnergy.toFixed(2)
             this.plFood += (ticksWhileAway * globalThat.settings.maxFoodFoundWhileExploring)*0.5
             ld('food After ticks: ' + this.plFood )
-            this.plCurrActivity = 'explore'
-            this.startActivity()
+            this.startExploringActivity()
 
 
           } else {
@@ -617,8 +645,7 @@ var app = new Vue({
             ld('train before ticks: ' + this.plTrain )
             this.plTrain += (ticksWhileAway * globalThat.settings.trainingPointsPerTick)*0.5
             ld('train After ticks: ' + this.plTrain )
-            this.plCurrActivity = 'train'
-            this.startActivity()
+            this.startTrainingActivity()
 
           } else {
 
@@ -695,12 +722,12 @@ var app = new Vue({
     runActivitiesSinceLastTime() {
         var lastSaveTime = (parseInt(get('lastActivity')) == null) ? Date.now() : (parseInt(get('lastActivity')))
 
+
         var timeStampNow = parseInt(Date.now())
         this.plTimeAwayMilli = timeStampNow - lastSaveTime  //how many millis since last save
 
-
+        ld('PLayer current activity: ' + get('plCurrActivity'))
         this.howManyTimes()
-        this.startActivity()
         var that = this
           setTimeout(function () {
             that.showTimeAway = false
@@ -845,7 +872,8 @@ var app = new Vue({
       this.mouseDownIntervals.push(killingInterval)
     },
 
-    searchAgain() {
+    searchForBoss() {
+      //todo minimum boss foighting energy
       if(this.plEn > 29) {
         this.startBossFightingActivity()
         this.bossHp = NaN
@@ -857,11 +885,24 @@ var app = new Vue({
         this.bossIsNowDead = true
          this.bossStatusMsg = 'Not enough energy...'
       }
-
-
       },
     //todo Uncaught TypeError: Cannot read property 'setAttribute' of undefined
       //     at main.js:702 when not enough energy
+
+    plHitsABoss() {
+      ld('Monster was hit!')
+      var aHit = createRand(1000)
+
+      if(aHit >  this.bossHp) {
+        this.bossHp = 0
+        this.bossIsNowDead = true
+        this.plBossesKilledCount += 1
+        this.loot()
+
+      } else {
+        this.bossHp -= aHit
+      }
+    },
 
     loot() {
       var exp =  parseInt(globalThat.currentMonster.exp)
@@ -925,7 +966,7 @@ var app = new Vue({
 
       this.bossMenuActive = (!this.bossMenuActive);
 
-      this.createBoss()
+      //this.createBoss()
       },
 
 
@@ -952,16 +993,17 @@ var app = new Vue({
     },
 
     saveData() {
-    this.writeLog()
-    set('plHp', this.plHp)
-    set('plEn', this.plEn)
-    set('plCurrActivity', this.plCurrActivity)
-    set('plFood', this.plFood)
-    set('lastActivity', Date.now())
-    set('plZombiesKilled', this.plZombiesKilled)
-    set('plExp', this.plExp)
-    set('plTrain', this.plTrain)
-    set('plBossesKilledCount', this.plBossesKilledCount)
+      this.writeLog()
+      set('plHp', this.plHp)
+      set('plEn', this.plEn)
+      set('plCurrActivity', this.plCurrActivity)
+      set('plFood', this.plFood)
+      set('lastActivity', Date.now())
+      set('plZombiesKilled', this.plZombiesKilled)
+      set('plExp', this.plExp)
+      set('plLvl', this.plLvl)
+      set('plTrain', this.plTrain)
+      set('plBossesKilledCount', this.plBossesKilledCount)
     },
 
     a_resetPlEnergy() {
@@ -1011,6 +1053,13 @@ var app = new Vue({
 
 
   computed: {
+    plLVL: function () {
+      return Math.floor(((this.plExp/100)/1.2))
+    },
+
+    plTrainLvl: function () {
+      return Math.floor(((this.plTrain/1000)+1))
+    },
 
 
 
@@ -1021,8 +1070,13 @@ var app = new Vue({
 
 
   mounted() {
-    setInterval(this.saveData, 1000)
+
+    ld('Mounted...')
+
     this.runActivitiesSinceLastTime()
+
+
+     setInterval(this.saveData, 1000)
 
 
 
