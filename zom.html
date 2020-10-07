@@ -44,8 +44,8 @@
 
 <body> <!-- FROM HERE -->
 
-<div id="app" style="background: rgba(235,238,238,0.6)">
-    <div class="container" style="height:auto" >
+<div id="app" style="background: rgba(193,193,193,0.64)">
+    <div class="container" style="height:auto; " >
         
         
         
@@ -76,7 +76,7 @@
                </div>
                 <label>
                     <progress class="progress is-primary is-small" :value="plEn" max="100" style="margin-bottom: 0.5em">{{ plEn }}</progress>
-                    {{ plEn }}
+                    {{truncatedEn}}
                 </label>
 
 
@@ -87,32 +87,38 @@
 
         <!-- statistics -->
         <div class="column is-10" style="padding:0 0.5em; margin: 0; font-size: 0.8em">
-            EN: <span style="font-weight: bold; width: 2em; display: inline-block">{{ plEn}}</span>
-            <span>HP: <span style="font-weight: bold; width: 2.5em; display: inline-block">{{ plHp}}</span></span>
-            <span>EXP: <span style="font-weight: bold; width: 2.5em; display: inline-block">{{ plExp }}</span></span>
-            <span>TR: <span style="font-weight: bold; width: 2.5em; display: inline-block">{{ plTrain }}</span></span>
-            <span>ZO: <span style="font-weight: bold; width: 2.5em;display: inline-block" >{{ plZombiesKilled }}</span></span>
-            <span>BO: <span style="font-weight: bold; width: 2.5em;display: inline-block">{{ plBossesKilledCount }}</span></span>
-            <span>FO: <span style="font-weight: bold; width: 2.5em;display: inline-block">{{  plFood  }}</span></span>
+<!--
+ https://i.imgur.com/qHkSrm9.png     progress
+
+ https://i.imgur.com/95BcGUB.png      muscle
+
+https://i.imgur.com/oZods8m.png       pork
+
+https://i.imgur.com/Zs4Bbxd.png    zombie
+
+
+https://i.imgur.com/gGof5bv.png   devil
+-->
+            <span> <img src="https://i.imgur.com/qHkSrm9.png" width="20px" height="20px"> <span style="font-weight: bold; width: 3em; display: inline-block">{{ plLVL }}</span></span>
+            <span><img src="https://i.imgur.com/95BcGUB.png " width="20px" height="20px"> <span style="font-weight: bold; width: 3em; display: inline-block">{{ plTrainLvl }}</span></span>
+            <span><img src="https://i.imgur.com/Zs4Bbxd.png" width="20px" height="20px"><span style="font-weight: bold; width: 3em;display: inline-block" >{{ plZombiesKilled }}</span></span>
+            <span><img src="https://i.imgur.com/gGof5bv.png" width="20px" height="20px"> <span style="font-weight: bold; width: 3em;display: inline-block">{{ plBossesKilledCount }}</span></span>
+            <span><img src="https://i.imgur.com/oZods8m.png" width="20px" height="20px"> <span style="font-weight: bold; width: 2.5em;display: inline-block">{{  plFood  }}</span></span>
         </div>
         
         <!-- button row 1 -->
-        <div class="columns is-mobile" style="margin-top: 0.1em; margin-bottom: 0">
+        <div class="columns  is-mobile" style="margin-top: 0.1em; margin-bottom: 0">
 
-                    <div class="column is-3-mobile is-narrow">
-                        <button @click="setActivity('sleep')" class="button is-small is-dark is-narrow " style=" border: 1px solid green; font-size: 0.8em; height:3em;   min-width: 70px; max-width: 100px; overflow: hidden">Sleep</button>
+                    <div class="column is-2-mobile is-narrow">
+                        <button @click="setActivity('sleep')" class="button is-small is-dark is-narrow " style=" border: 1px solid green; font-size: 0.8em; height:3em;  margin-left: 5px;   min-width: 50px; max-width: 80px; overflow: hidden">Sleep</button>
                     </div>
 
-                    <div class="column is-3-mobile is-narrow">
-                        <button @click="setActivity('sit') " class="button is-small is-dark is-narrow " style=" font-size: 0.8em; height:3em;  min-width: 70px; max-width: 100px; overflow: hidden ">Sit</button>
+                     <div class="column  is-2-mobile is-narrow">
+                       <button @click="setActivity('explore')"  class="button is-small is-dark  " style="font-size: 0.8em; height:3em;  margin-left: 5px;    min-width: 50px; max-width: 80px; overflow: hidden">Explore</button>
                     </div>
 
-                    <div class="column  is-3-mobile is-narrow">
-                       <button  @click="setActivity('explore')"  class="button is-small is-dark is-narrow " style="font-size: 0.8em; height:3em;    min-width: 70px; max-width: 100px; overflow: hidden">Explore</button>
-                    </div>
-
-                     <div class="column  is-3-mobile is-narrow">
-                       <button @click="setActivity('explore')"  class="button is-small is-dark  " style="font-size: 0.8em; height:3em;    min-width: 70px; max-width: 100px; overflow: hidden">Explore</button>
+                    <div class="column  is-2-mobile is-narrow ">
+                         <button @click="setActivity('train')"  class="button is-small is-dark" style="font-size: 0.8em; height:3em;  margin-left: 20px;     min-width: 50px; max-width: 80px; overflow: hidden">Train</button>
                     </div>
         </div> <!-- button row 1 -->
 
@@ -120,9 +126,7 @@
         <!-- button row 2 -->
         <div class="columns is-mobile " style="margin-top: 0.1em;">
     
-            <div class="column  is-3-mobile is-narrow ">
-                <button @click="setActivity('train')"  class="button is-small is-dark" style="font-size: 0.8em; height:3em;    min-width: 70px; max-width: 100px; overflow: hidden">Train</button>
-            </div>
+
 
             <div class="column  is-3-mobile is-narrow ">
                 <button @click="setActivity('hunt')" class="button is-small is-dark" style="font-size: 0.8em; height:3em;   min-width: 70px; max-width: 100px; overflow: hidden">Hunt</button>
@@ -163,10 +167,10 @@
                 <div class="tile is-child bbb is-vertical ">
                     <div class="tile">
                         <!-- @click="buttonDown" @mouseup="buttonUp" -->
-                        <button :disabled="bossIsNowDead"  @click="monsterHit" style="height: 100px; width: 100px">Kill</button>
+                        <button :disabled="bossIsNowDead" @click="plHitsABoss" style="height: 100px; width: 100px">Kill</button>
                     </div>
                     <div class="tile">
-                        <button  @click="searchAgain" style="height: 40px; width: 100px">Again</button>
+                        <button @click="searchForBoss" style="height: 40px; width: 100px">Again</button>
                     </div>
                 </div>
 
@@ -179,8 +183,11 @@
 
     </div> <!-- container -->
 
+    
 
-    <div style="display:block; height:auto; margin-top: 100px">
+
+
+    <div style="display:block; height:auto; margin-top: 500px">
     <button @click="a_resetPlEnergy">Reset Energy</button><br>
     <button @click="a_resetPlHp">Reset Hp</button><br>
     <button @click="a_resetExp">Reset exp</button><br>
@@ -192,7 +199,9 @@
     <button @click="a_energyMinus10">Energy - 10</button><br>
     <button @click="a_energyPlus2">Energy + 2</button><br>
     <button @click="a_energyPlus10">Energy + 10</button><br><br>
-
+  <p>Exp: {{ plExp }}</p>
+    <p>Train: {{ plTrain }}</p>
+    <p>Train: {{ plEn }}</p>
 
 
     <div style="margin-left:100px">
@@ -202,7 +211,8 @@
     </div>
 </div> <!-- buttons -->
     
-    
+
+
     
 </div>  <!-- APP  TO HERE -->
 
